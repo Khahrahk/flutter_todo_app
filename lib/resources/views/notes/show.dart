@@ -11,6 +11,7 @@ class NoteView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
 
@@ -20,6 +21,7 @@ class NoteView extends StatelessWidget {
     }
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.primary,
       appBar: AppBar(
         title: Text( note == null
             ? 'Add'
@@ -45,30 +47,34 @@ class NoteView extends StatelessWidget {
               child: TextFormField(
                 controller: titleController,
                 maxLines: 1,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: theme.colorScheme.secondary,
                     hintText: 'Title',
                     labelText: 'Title',
                     border: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.white,
+                          color: theme.colorScheme.onPrimary,
                           width: 0.75,
                         ),
-                        borderRadius: BorderRadius.all(
+                        borderRadius: const BorderRadius.all(
                           Radius.circular(10.0),
                         ))),
               ),
             ),
             TextFormField(
               controller: descriptionController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
+                  filled: true,
+                  fillColor: theme.colorScheme.secondary,
                   hintText: 'Description',
                   labelText: 'Description',
                   border: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                         width: 0.75,
                       ),
-                      borderRadius: BorderRadius.all(
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(10.0),
                       ))),
               keyboardType: TextInputType.multiline,
@@ -109,8 +115,8 @@ class NoteView extends StatelessWidget {
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(10.0),
                                 )))),
-                    child: const Text( 'Save',
-                      style: TextStyle(fontSize: 20),
+                    child: Text( 'Save',
+                      style: TextStyle(fontSize: 20, color: theme.colorScheme.onPrimary),
                     )),
               ),
             ),

@@ -1,7 +1,6 @@
 import '../Models/Note.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'dart:developer' as developer;
 
 class DatabaseHelper {
   static const int _version = 1;
@@ -10,33 +9,53 @@ class DatabaseHelper {
   static Future<Database> _getDB() async {
     return openDatabase(join(await getDatabasesPath(), _dbName),
         onCreate: (db, version) async => await db.execute(
-            "CREATE TABLE Note(id INTEGER PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, complete INTEGER, softDelete INTEGER);"),
-        version: _version);
+          "CREATE TABLE Note(id INTEGER PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, complete INTEGER, softDelete INTEGER, favourite INTEGER);"),
+          version: _version
+        );
   }
 
   static Future<int> addNote(Note note) async {
     final db = await _getDB();
-    // databaseFactory.deleteDatabase("Notes.db");
-    // developer.log(note.toJson().toString(), name: 'my.app.category');
-    return await db.insert("Note", note.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert("Note", note.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<int> updateNote(Note note) async {
     final db = await _getDB();
     return await db.update("Note", note.toJson(),
-        where: 'id = ?',
-        whereArgs: [note.id],
-        conflictAlgorithm: ConflictAlgorithm.replace);
+      where: 'id = ?',
+      whereArgs: [note.id],
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
   }
 
-  static Future<int> completeNote(Note note) async {
+  static Future<int> completeNote(Note note, int complete) async {
     final db = await _getDB();
-    var finalNote = Note(id: note.id, title: note.title, description: note.description, complete: 1);
+    var finalNote = Note(id: note.id, title: note.title, description: note.description, complete: complete);
     return await db.update("Note", finalNote.toJson(),
-        where: 'id = ?',
-        whereArgs: [note.id],
-        conflictAlgorithm: ConflictAlgorithm.replace);
+      where: 'id = ?',
+      whereArgs: [note.id],
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
+
+  static Future<int> favouriteNote(Note note, int favourite) async {
+    final db = await _getDB();
+    var finalNote = Note(id: note.id, title: note.title, description: note.description, favourite: favourite);
+    return await db.update("Note", finalNote.toJson(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
+
+  static Future<int> softDeleteNote(Note note, int softDelete) async {
+    final db = await _getDB();
+    var finalNote = Note(id: note.id, title: note.title, description: note.description, softDelete: softDelete);
+    return await db.update("Note", finalNote.toJson(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
   }
 
   static Future<int> deleteNote(Note note) async {
@@ -48,14 +67,10 @@ class DatabaseHelper {
     );
   }
 
-  static Future<List<Note>?> getAllNotes() async {
+  static Future<List<Note>?> getAllNotes(String filterQuery, List<Object?> filterValues) async {
     final db = await _getDB();
-
-    final List<Map<String, dynamic>> maps = await db.query("Note");
-
-    if (maps.isEmpty) {
-      return null;
-    }
+    final List<Map<String, dynamic>> maps = await db.query("Note", where: filterQuery, whereArgs: filterValues);
+    if (maps.isEmpty) return null;
 
     return List.generate(maps.length, (index) => Note.fromJson(maps[index]));
   }
